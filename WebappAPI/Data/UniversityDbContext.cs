@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebappAPI.Data.Cursuri;
 using WebappAPI.Data.Genders;
+using WebappAPI.Data.Grades;
 using WebappAPI.Data.Persons;
 
 namespace WebappAPI.Data
@@ -23,6 +24,8 @@ namespace WebappAPI.Data
         public DbSet<Gender> Genders { get; set; }
 
         public DbSet<CoursePerson> CoursePerson { get; set; }
+        
+        public DbSet<ExamenGrade> ExamenGrade { get; set; }
 
     }
 }

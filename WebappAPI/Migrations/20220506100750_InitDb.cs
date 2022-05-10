@@ -43,7 +43,7 @@ namespace WebappAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Surname = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GenderId = table.Column<int>(type: "int", nullable: true)
+                    GenderId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,7 +52,8 @@ namespace WebappAPI.Migrations
                         name: "FK_Person_Gender_GenderId",
                         column: x => x.GenderId,
                         principalTable: "Gender",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -79,6 +80,33 @@ namespace WebappAPI.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ExamenGrade",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Grade = table.Column<float>(type: "real", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamenGrade", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExamenGrade_Curs_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Curs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExamenGrade_Person_PersonId",
+                        column: x => x.PersonId,
+                        principalTable: "Person",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Gender",
                 columns: new[] { "Id", "Name" },
@@ -100,6 +128,16 @@ namespace WebappAPI.Migrations
                 column: "PersonId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExamenGrade_CourseId",
+                table: "ExamenGrade",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamenGrade_PersonId",
+                table: "ExamenGrade",
+                column: "PersonId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Person_GenderId",
                 table: "Person",
                 column: "GenderId");
@@ -109,6 +147,9 @@ namespace WebappAPI.Migrations
         {
             migrationBuilder.DropTable(
                 name: "CoursePerson");
+
+            migrationBuilder.DropTable(
+                name: "ExamenGrade");
 
             migrationBuilder.DropTable(
                 name: "Curs");

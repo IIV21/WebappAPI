@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebappAPI.Data;
 using WebappAPI.Data.Persons;
@@ -11,11 +12,13 @@ namespace WebappAPI.Controllers
     [ApiController]
     public class PersonController : ControllerBase
     {
+        private readonly IMapper _mapper;
 
         private UniversityDbContext _dbContext;
 
-        public PersonController(UniversityDbContext dbContext)
+        public PersonController(IMapper mapper,UniversityDbContext dbContext)
         {
+            _mapper = mapper;
             _dbContext = dbContext;
         }
 
@@ -23,19 +26,19 @@ namespace WebappAPI.Controllers
         [HttpGet]
         public IActionResult GetAllPersons()
         {
-           // var results = _dbContext.Persons.Include(p => p.Gender);
-
-            var getallpersonsresults = new List<GetAllPersonsResult>();
-            foreach (var person in _dbContext.Persons.Include(p=>p.Gender))
+            // var results = _dbContext.Persons.Include(p => p.Gender);
+            var getPersonResultListx = _dbContext.Persons.Include(p => p.Gender);
+            var getallpersonsresults = _mapper.Map<List<GetAllPersonsResult>>(getPersonResultListx);
+            /*foreach (var person in _dbContext.Persons.Include(p=>p.Gender))
             {
                 var personResult = new GetAllPersonsResult();
                 personResult.Id = person.Id;
                 personResult.Name = person.Name;
                 personResult.Surname = person.Surname;
-                personResult.GenderId = person.GenderId.GetValueOrDefault();
+                personResult.GenderId = person.GenderId;
                 personResult.GenderName = person.Gender.Name;
                 getallpersonsresults.Add(personResult);
-            }
+            */
             return Ok(getallpersonsresults);
         }
 
@@ -45,9 +48,9 @@ namespace WebappAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult GetPersonId(int id)
         {
-            var person = _dbContext.Persons.FirstOrDefault(x => x.Id == id);
-            var personCopy = person;
-            if (person == null)
+            var person = _dbContext.Persons.Include(x => x.Gender).FirstOrDefault(x => x.Id == id);
+            var personCopy = _mapper.Map<GetPersonIdResult>(person);
+            if (personCopy == null)
                 return NotFound();
             else
                 return Ok(personCopy);
@@ -58,7 +61,12 @@ namespace WebappAPI.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] CreatePersonRequest persoana)
         {
-            var pers = new Person();
+            var newPersonResult = _mapper.Map<Person>(persoana);
+            _dbContext.Persons.Add(newPersonResult);
+            _dbContext.SaveChanges();
+            return Ok(newPersonResult);
+
+           /* var pers = new Person();
             pers.Name = persoana.Name;
             pers.Surname = persoana.Surname;
             pers.GenderId = persoana.GenderId;
@@ -69,7 +77,7 @@ namespace WebappAPI.Controllers
             createpersonresult.Name = persoana.Name;
             createpersonresult.Surname = persoana.Surname;
             createpersonresult.GenderId = persoana.GenderId;
-            return(Ok(createpersonresult));
+            return(Ok(createpersonresult));*/
         }
 
 
@@ -92,7 +100,7 @@ namespace WebappAPI.Controllers
                 UpdatePersonResult updatepersonresult = new UpdatePersonResult();
                 updatepersonresult.Name = persoana.Name;
                 updatepersonresult.Surname = persoana.Surname;
-                updatepersonresult.GenderId = person.GenderId.GetValueOrDefault();
+                updatepersonresult.GenderId = person.GenderId;
 
                 return Ok(updatepersonresult);
             }

@@ -12,7 +12,7 @@ using WebappAPI.Data;
 namespace WebappAPI.Migrations
 {
     [DbContext(typeof(UniversityDbContext))]
-    [Migration("20220505115704_InitDb")]
+    [Migration("20220506100750_InitDb")]
     partial class InitDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -96,6 +96,32 @@ namespace WebappAPI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WebappAPI.Data.Grades.ExamenGrade", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<float>("Grade")
+                        .HasColumnType("real");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("ExamenGrade", (string)null);
+                });
+
             modelBuilder.Entity("WebappAPI.Data.Persons.Person", b =>
                 {
                     b.Property<int>("Id")
@@ -104,7 +130,7 @@ namespace WebappAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("GenderId")
+                    b.Property<int>("GenderId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -137,11 +163,32 @@ namespace WebappAPI.Migrations
                     b.Navigation("Person");
                 });
 
+            modelBuilder.Entity("WebappAPI.Data.Grades.ExamenGrade", b =>
+                {
+                    b.HasOne("WebappAPI.Data.Cursuri.Curs", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebappAPI.Data.Persons.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Person");
+                });
+
             modelBuilder.Entity("WebappAPI.Data.Persons.Person", b =>
                 {
                     b.HasOne("WebappAPI.Data.Genders.Gender", "Gender")
                         .WithMany()
-                        .HasForeignKey("GenderId");
+                        .HasForeignKey("GenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Gender");
                 });

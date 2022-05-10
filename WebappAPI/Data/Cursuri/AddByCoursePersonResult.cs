@@ -1,8 +1,6 @@
-﻿using WebappAPI.Data.Persons;
-
-namespace WebappAPI.Data.Cursuri
+﻿namespace WebappAPI.Controllers
 {
-    public class InserCoursePersonResult
+    public class AddByCoursePersonResult
     {
         public int Id { get; set; }
         public int CourseId { get; set; }

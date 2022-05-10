@@ -13,7 +13,7 @@ namespace WebappAPI.Data.Persons
             builder.HasKey(x => x.Id); //id este PK
             builder.Property(x => x.Name).IsRequired();//Nume este Required, not null
             builder.Property(x=>x.Surname).IsRequired();//PRENume este Required, not null
-           // builder.HasOne(x=>x.Gender).WithMany().HasForeignKey(x=>x.GenderId);//FK catre Gender
+            builder.HasOne(x=>x.Gender).WithMany().HasForeignKey(x=>x.GenderId);//FK catre Gender
         }
     }
 }

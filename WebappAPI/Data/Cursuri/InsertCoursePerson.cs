@@ -1,4 +1,6 @@
-﻿namespace WebappAPI.Data.Cursuri
+﻿using WebappAPI.Data.Persons;
+
+namespace WebappAPI.Data.Cursuri
 {
     public class InsertCoursePerson
     {

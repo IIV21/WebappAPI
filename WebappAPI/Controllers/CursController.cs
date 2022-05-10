@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebappAPI.Data;
 using WebappAPI.Data.Cursuri;
+using WebappAPI.Data.Persons;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,22 +13,26 @@ namespace WebappAPI.Controllers
     [ApiController]
     public class CursController : ControllerBase
     {
-
+        private readonly IMapper _mapper;
         private UniversityDbContext _dbContext;
 
-        public CursController(UniversityDbContext dbContext)
+        public CursController(IMapper mapper, UniversityDbContext dbContext)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
 
 
         // GET: api/<CursController>
         [HttpGet]
-        public IActionResult GetAllCurses()
+        public IActionResult GetAllCurses() 
         {
-            var coursesList = new List<GetAllCoursesResult>();
-            foreach (var course in _dbContext.Courses)
+            var coursesList =  _dbContext.Courses;
+            var courseListResult = _mapper.Map<List<GetAllCoursesResult>>(coursesList);
+            return Ok(courseListResult);
+
+            /*foreach (var course in _dbContext.Courses)
             {
                 var courseResult = new GetAllCoursesResult();
                 courseResult.Id = course.Id;
@@ -34,7 +40,7 @@ namespace WebappAPI.Controllers
                 courseResult.Active = course.Active;
                 coursesList.Add(courseResult);
             }
-            return Ok(coursesList);
+            return Ok(coursesList);*/
         }
 
         // GET api/<CursController>/5
@@ -42,11 +48,13 @@ namespace WebappAPI.Controllers
         public IActionResult GetCourseId(int id)
         {
             var course = _dbContext.Courses.FirstOrDefault(x => x.Id == id);
-            var courseCopy = course;
             if (course == null)
                 return NotFound();
             else
+            {
+                var courseCopy = _mapper.Map<GetCourseResult>(course);
                 return Ok(courseCopy);
+            }
 
         }
 
@@ -79,9 +87,8 @@ namespace WebappAPI.Controllers
                 curs.Active = course.Active;
                 _dbContext.SaveChanges();
 
-                UpdateCoursesRequest updatecoursesresult = new UpdateCoursesRequest();
-                updatecoursesresult.Name = course.Name;
-                updatecoursesresult.Active = course.Active;
+                var updatecoursesresult = _mapper.Map<Curs>(curs);
+
 
                 return Ok(updatecoursesresult);
             }
@@ -117,6 +124,53 @@ namespace WebappAPI.Controllers
             cursResult.CourseId = ics.CourseId;
             cursResult.PersonId = ics.PersonId;
             return (Ok(cursResult));
+        }
+        [HttpPost]
+        public IActionResult AddByName([FromBody] AddByCoursePerson abcp)
+        {
+            
+            var verifyPerson = _dbContext.Persons.FirstOrDefault(x => x.Name == abcp.Name && abcp.Surname == x.Surname);
+            if (verifyPerson == null)
+            {
+                var insertPerson = new Person();
+                insertPerson.Name = abcp.Name;
+                insertPerson.Surname = abcp.Surname;
+                insertPerson.Gender = _dbContext.Genders.FirstOrDefault(x => x.Name == "Male");
+                _dbContext.Persons.Add(insertPerson);
+                _dbContext.SaveChanges();
+                var personResult = new CoursePerson();
+                personResult.CourseId = abcp.CourseId;
+                personResult.PersonId = insertPerson.Id;
+
+                _dbContext.CoursePerson.Add(personResult);
+                _dbContext.SaveChanges();
+
+                var insertPersonResult = new CreatePersonResult();
+                insertPersonResult.Name = abcp.Name;
+                insertPersonResult.Surname = abcp.Surname;
+                insertPersonResult.GenderId = insertPerson.GenderId;
+                return (Ok(insertPersonResult));
+            }
+            else
+            {
+                var item = _dbContext.CoursePerson.FirstOrDefault(x => x.CourseId == abcp.CourseId && x.PersonId == verifyPerson.Id);
+                if (item == null)
+                {
+                    var personResult = new CoursePerson();
+                    personResult.CourseId = abcp.CourseId;
+                    personResult.PersonId = verifyPerson.Id;
+
+                    _dbContext.CoursePerson.Add(personResult);
+                    _dbContext.SaveChanges();
+
+                    var result = new AddByCoursePersonResult();
+                    result.CourseId = abcp.CourseId;
+                    result.PersonId = verifyPerson.Id;
+                    return Ok(result);
+                }   
+                else
+                    return BadRequest("person already at this course");
+            }
         }
 
         [HttpDelete]

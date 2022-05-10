@@ -15,6 +15,8 @@ var connectionStrig = builder.Configuration.GetConnectionString("UniversityDb");
 
 builder.Services.AddDbContext<UniversityDbContext>(x => x.UseSqlServer(connectionStrig));
 
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

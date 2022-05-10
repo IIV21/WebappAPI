@@ -1,11 +1,10 @@
-﻿using WebappAPI.Data.Persons;
-
-namespace WebappAPI.Data.Cursuri
+﻿namespace WebappAPI.Data.Grades
 {
-    public class InserCoursePersonResult
+    public class UpdateCourseResult
     {
         public int Id { get; set; }
         public int CourseId { get; set; }
         public int PersonId { get; set; }
+        public float Grade { get; set; }
     }
 }
