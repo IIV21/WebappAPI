@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebappAPI.Data;
@@ -14,22 +15,28 @@ namespace WebappAPI.Controllers
     {
         private readonly IMapper _mapper;
 
+        private readonly IMediator _mediator;
+
         private UniversityDbContext _dbContext;
 
-        public PersonController(IMapper mapper,UniversityDbContext dbContext)
+        public PersonController(IMediator mediator,IMapper mapper,UniversityDbContext dbContext)
         {
             _mapper = mapper;
             _dbContext = dbContext;
+            _mediator = mediator;
         }
 
         // GET: api/<PersonController>
         [HttpGet]
-        public IActionResult GetAllPersons()
+        public async Task<IActionResult> GetAllPersons()
         {
-            // var results = _dbContext.Persons.Include(p => p.Gender);
+
+            var persons= await _mediator.Send(new GetAllPersonsQuery());
+            return Ok(persons);
+            /*  // var results = _dbContext.Persons.Include(p => p.Gender);
             var getPersonResultListx = _dbContext.Persons.Include(p => p.Gender);
             var getallpersonsresults = _mapper.Map<List<GetAllPersonsResult>>(getPersonResultListx);
-            /*foreach (var person in _dbContext.Persons.Include(p=>p.Gender))
+            *//*foreach (var person in _dbContext.Persons.Include(p=>p.Gender))
             {
                 var personResult = new GetAllPersonsResult();
                 personResult.Id = person.Id;
@@ -38,33 +45,27 @@ namespace WebappAPI.Controllers
                 personResult.GenderId = person.GenderId;
                 personResult.GenderName = person.Gender.Name;
                 getallpersonsresults.Add(personResult);
-            */
-            return Ok(getallpersonsresults);
+            *//*
+            return Ok(getallpersonsresults);*/
         }
 
 
 
         // GET api/<PersonController>/5
         [HttpGet("{id}")]
-        public IActionResult GetPersonId(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var person = _dbContext.Persons.Include(x => x.Gender).FirstOrDefault(x => x.Id == id);
-            var personCopy = _mapper.Map<GetPersonIdResult>(person);
-            if (personCopy == null)
-                return NotFound();
-            else
-                return Ok(personCopy);
-
+            var personFilterQuery = new GetPersonFilterQuery(id);
+            var response = await _mediator.Send(personFilterQuery);
+            return Ok(response);
         }
 
         // POST api/<PersonController>
         [HttpPost]
-        public IActionResult Post([FromBody] CreatePersonRequest persoana)
+        public IActionResult Post(string personName, string personSurname,  int genderID)
         {
-            var newPersonResult = _mapper.Map<Person>(persoana);
-            _dbContext.Persons.Add(newPersonResult);
-            _dbContext.SaveChanges();
-            return Ok(newPersonResult);
+            var person = new PostPersonCommand(personName, personSurname, genderID);
+            return Ok(_mediator.Send(person)); // aici trebuie facuta o clasa care intoarce efectiv datele necesare, nu toate de la persoana.
         }
 
 

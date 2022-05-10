@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using WebappAPI.Controllers;
 
 namespace WebappAPI.Data.Persons
 {
@@ -7,9 +8,13 @@ namespace WebappAPI.Data.Persons
         public PersonProfile()
         {
             CreateMap<CreatePersonRequest, Person>();
-            CreateMap<Person, GetPersonIdResult>().ForMember(g=>g.GenderName, map => map.MapFrom(p=>p.Gender.Name));
+            CreateMap<PostPersonCommand, Person>();
+
+            CreateMap<Person, GetPersonIdResult>().ForMember(g => g.GenderName, map => map.MapFrom(p => p.Gender.Name));
+
             CreateMap<UpdatePersonRequest, UpdatePersonResult>();
             CreateMap<Person, GetAllPersonsResult>().ForMember(g => g.GenderName, map => map.MapFrom(p => p.Gender.Name));
+
         }
     }
 }

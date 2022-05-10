@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WebappAPI.Controllers;
 using WebappAPI.Data;
@@ -10,10 +11,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 var connectionStrig = builder.Configuration.GetConnectionString("UniversityDb");
 
 builder.Services.AddDbContext<UniversityDbContext>(x => x.UseSqlServer(connectionStrig));
+
+builder.Services.AddMediatR(typeof(Program).Assembly);
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 

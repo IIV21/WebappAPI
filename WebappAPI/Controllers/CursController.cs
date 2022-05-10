@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebappAPI.Data;
@@ -14,15 +15,15 @@ namespace WebappAPI.Controllers
     public class CursController : ControllerBase
     {
         private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
         private UniversityDbContext _dbContext;
 
-        public CursController(IMapper mapper, UniversityDbContext dbContext)
+        public CursController(IMediator mediator,IMapper mapper, UniversityDbContext dbContext)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _mediator = mediator;
         }
-
-
 
         // GET: api/<CursController>
         [HttpGet]
@@ -172,22 +173,26 @@ namespace WebappAPI.Controllers
             }
         }
         [HttpGet]
-        public IActionResult GetAllById(int idCurs)
+        public async Task<IActionResult> GetAllById(int idCurs)
         {
-            var courseList = new List<CoursePersonResult>();
+            var persons =  await _mediator.Send(new GetByCourseIdQuery(idCurs));
+            return Ok(persons);
+
+
+            /*var courseList = new List<CoursePersonResult>();
             var items = _dbContext.CoursePerson.Where(p => p.CourseId == idCurs).Include(p => p.Person).ThenInclude(p => p.Gender).Include(p => p.Course);
             foreach (var person in items)
             {
                 var courseResult = new CoursePersonResult();
-                courseResult.CourseId = person.CourseId.GetValueOrDefault();
-                courseResult.PersonId = person.PersonId.GetValueOrDefault();
+                courseResult.CourseId = person.CourseId;
+                courseResult.PersonId = person.PersonId;
                 courseResult.PersonName = person.Person.Name;
                 courseResult.PersonSurname = person.Person.Surname;
                 courseResult.GenderName = person.Person.Gender.Name;
                 courseResult.CourseName = person.Course.Name;
                 courseList.Add(courseResult);
             }
-            return Ok(courseList);
+            return Ok(courseList);*/
         }
     }
 }
