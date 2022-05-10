@@ -31,16 +31,6 @@ namespace WebappAPI.Controllers
             var coursesList =  _dbContext.Courses;
             var courseListResult = _mapper.Map<List<GetAllCoursesResult>>(coursesList);
             return Ok(courseListResult);
-
-            /*foreach (var course in _dbContext.Courses)
-            {
-                var courseResult = new GetAllCoursesResult();
-                courseResult.Id = course.Id;
-                courseResult.Name = course.Name;
-                courseResult.Active = course.Active;
-                coursesList.Add(courseResult);
-            }
-            return Ok(coursesList);*/
         }
 
         // GET api/<CursController>/5
@@ -113,16 +103,11 @@ namespace WebappAPI.Controllers
         [HttpPost]
         public IActionResult AddByID([FromBody] InsertCoursePerson ics)
         {
-            var cursPersoana = new CoursePerson();
-
-            cursPersoana.CourseId = ics.CourseId;
-            cursPersoana.PersonId = ics.PersonId;
+            var cursPersoana = _mapper.Map<CoursePerson>(ics);
 
             _dbContext.CoursePerson.Add(cursPersoana);
             _dbContext.SaveChanges();
-            var cursResult = new InserCoursePersonResult();
-            cursResult.CourseId = ics.CourseId;
-            cursResult.PersonId = ics.PersonId;
+            var cursResult = _mapper.Map<InserCoursePersonResult>(ics);
             return (Ok(cursResult));
         }
         [HttpPost]

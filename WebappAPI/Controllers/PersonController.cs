@@ -65,19 +65,6 @@ namespace WebappAPI.Controllers
             _dbContext.Persons.Add(newPersonResult);
             _dbContext.SaveChanges();
             return Ok(newPersonResult);
-
-           /* var pers = new Person();
-            pers.Name = persoana.Name;
-            pers.Surname = persoana.Surname;
-            pers.GenderId = persoana.GenderId;
-            _dbContext.Persons.Add(pers);
-            _dbContext.SaveChanges();
-
-            CreatePersonResult createpersonresult = new CreatePersonResult();
-            createpersonresult.Name = persoana.Name;
-            createpersonresult.Surname = persoana.Surname;
-            createpersonresult.GenderId = persoana.GenderId;
-            return(Ok(createpersonresult));*/
         }
 
 
