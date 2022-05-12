@@ -110,5 +110,28 @@ namespace WebappAPI.Controllers
             }
 
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Get(string Name, string Surname, int varsta)
+        {
+            var personRequest = new GetPersonStringQuery(Name, Surname, varsta);
+            var personResult =  _mediator.Send(personRequest).Result;
+            return Ok(personResult);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Get4Ints(_4IntRequest get)
+        {
+            var request = get;
+            var result = _mediator.Send(request).Result;
+            return Ok(result);
+        }
+        [HttpPost]
+        public async Task<IActionResult> SumIntList()
+        {
+            var List = new IntListQuery();
+           var result = _mediator.Send(List).Result;
+            return Ok(result);
+        }
     }
 }
